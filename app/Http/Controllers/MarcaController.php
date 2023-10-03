@@ -20,7 +20,7 @@ class MarcaController extends Controller
     public function index()
     {
         $marca = $this->marca->all();
-        return $marca;
+        return response()->json($marca,200);
     }
 
     /**
@@ -41,8 +41,10 @@ class MarcaController extends Controller
      */
     public function store(Request $request)
     {   
+        
+        $request->validate($this->marca->rules(), $this->marca->feedback());
         $marca = $this->marca->create($request->all());
-        return $marca;
+        return response()->json($marca, 201);
     }
 
     /**
@@ -54,9 +56,9 @@ class MarcaController extends Controller
     public function show($id){
         $marca = $this->marca->find($id);
         if($marca){
-            return $marca;
+            return response()->json($marca,200);
         } else {
-            return ['erro'=> "O objeto não foi encontrado, por favor, tente outro."];
+            return response()->json(['erro'=> "O recurso solicitado para visualização não existe."], 404);
         }
         
     }
@@ -82,10 +84,25 @@ class MarcaController extends Controller
     {
         $marca = $this->marca->find($id);
         if($marca){
+
+            if($request->method() === 'PATCH'){
+                $regrasDinamicas = array();
+                foreach($marca->rules() as $key => $regra){
+                    if(array_key_exists($key,$request->all())){
+                        $regrasDinamicas[$key] = $regra;
+                    }
+                }
+                //dd($regrasDinamicas);
+                $request->validate($regrasDinamicas, $marca->feedback());
+            } else{
+                $request->validate($marca->rules(),$marca->feedback());
+                
+            }
             $marca->update($request->all());
-            return $marca;
+            return response()->json($marca,200);
+       
         } else {
-            return ['erro'=> "O recurso solicitad para auteração não existe."];
+            return response()->json(['erro'=> "O recurso solicitado para auteração não existe."], 404);
         }
     }
 
@@ -102,7 +119,7 @@ class MarcaController extends Controller
             $marca->delete();
             return ["msg" => "O registro foi removido com sucesso!"];
         } else {
-            return ['erro'=> "O recurso solicitado para auteração não existe."];
+            return response()->json(['erro'=> "O recurso solicitado para exclusão não existe."], 404);
         }
     }
     
