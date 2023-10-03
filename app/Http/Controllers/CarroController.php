@@ -12,7 +12,13 @@ class CarroController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * 
      */
+
+    public function __construct(Carro $carro)
+    {
+        
+    }
     public function index()
     {
         //
